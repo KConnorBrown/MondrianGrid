@@ -1,7 +1,6 @@
 package grid;
 
 import java.util.ArrayList;
-import java.util.Stack;
 import javafx.scene.input.MouseEvent;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -23,27 +22,29 @@ public class Grid {
 	private Rectangle _border;
 	private boolean _triggered;
 	private ArrayList<Rectangle> _regions;
-	private Stack<Fill> _undo;
-	private Stack<Fill> _redo;
+	private Rectangle _selectedRegion;
+	private Color _currColor;
+	private PaneOrganizer _po;
+	private HelpBox _hb;
 
-	public Grid(Pane pane) {
-		_undo = new Stack<Fill>();
-		_redo = new Stack<Fill>();
+	public Grid(Pane pane, PaneOrganizer po) {
+		_po = po;
+		_currColor = Color.TRANSPARENT;
 		_regions = new ArrayList<Rectangle>();
 		_reset = true;
 		_pane = pane;
 		_triggered = false;
 		_currMode = GridEnums.STOP;
-		_pane.addEventHandler(MouseEvent.ANY, new MouseHandler());
-		this.installBorder();
 		this.setupTimeline();
+		_pane.addEventHandler(MouseEvent.ANY, new MouseHandler());
+		_hb = new HelpBox(_pane);
 	}
 
 	private void installBorder() {
-		_border = new Rectangle(0.0, 0.0, Constants.ROOT_WIDTH, Constants.ROOT_HEIGHT);
+		_border = new Rectangle(0.0, 0.0, Constants.ROOT_WIDTH, _po.getRootHeight());
 		_border.setStrokeType(StrokeType.INSIDE);
 		_border.setStrokeWidth(4);
-		_border.setStroke(Color.PINK);
+		_border.setStroke(Color.BLACK);
 		_border.setFill(Color.TRANSPARENT);
 		_pane.getChildren().add(_border);
 	}
@@ -55,31 +56,13 @@ public class Grid {
 		_timeline.play();
 	}
 
-	// method called in control by grid instance to reset the grid, by removing all
-	// the objects logically and graphically
 	public void reset() {
 		for (int i = 0; i < _regions.size(); i++) {
 			_pane.getChildren().remove(_regions.get(i));
 		}
 		_regions.clear();
-		_undo.clear();
-		_redo.clear();
 		_reset = true;
 		_triggered = false;
-	}
-
-	public void undo() {
-		if (!_undo.isEmpty()) {
-			_undo.peek().undo();
-			_redo.push(_undo.pop());
-		}
-	}
-
-	public void redo() {
-		if (!_redo.isEmpty()) {
-			_redo.peek().redo();
-			_undo.push(_redo.pop());
-		}
 	}
 
 	public void setMode(GridEnums mode) {
@@ -91,7 +74,7 @@ public class Grid {
 			// if the region is wider and taller than than half the initial canvas width and
 			// taller
 			ArrayList<Rectangle> newRegions;
-			if (region.getWidth() > Constants.ROOT_WIDTH / 2 && region.getHeight() > Constants.ROOT_HEIGHT / 2) {
+			if (region.getWidth() > Constants.ROOT_WIDTH / 2 && region.getHeight() > _po.getRootHeight() / 2) {
 				newRegions = this.split(GridEnums.HORIZONTAL, GridEnums.VERTICAL, region);
 				for (int i = 0; i < newRegions.size(); i++) {
 					this.generateGrid(newRegions.get(i));
@@ -104,7 +87,7 @@ public class Grid {
 					this.generateGrid(newRegions.get(i));
 				}
 				return;
-			} else if (region.getHeight() > Constants.ROOT_HEIGHT / 2) {
+			} else if (region.getHeight() > _po.getRootHeight() / 2) {
 				// split horizontally
 				newRegions = this.split(null, GridEnums.VERTICAL, region);
 				for (int i = 0; i < newRegions.size(); i++) {
@@ -208,11 +191,7 @@ public class Grid {
 		for (int i = 0; i < newRegions.size(); i++) {
 			newRegions.get(i).setStrokeType(StrokeType.INSIDE);
 			newRegions.get(i).setStrokeWidth(4);
-			if (i % 2 == 0) {
-				newRegions.get(i).setStroke(Color.CORNFLOWERBLUE);
-			} else {
-				newRegions.get(i).setStroke(Color.PINK);
-			}
+			newRegions.get(i).setStroke(Color.BLACK);
 			newRegions.get(i).setFill(Color.TRANSPARENT);
 			_pane.getChildren().add(newRegions.get(i));
 			_regions.add(newRegions.get(i));
@@ -232,9 +211,18 @@ public class Grid {
 
 		@Override
 		public void handle(ActionEvent e) {
+
+			if (_border == null) {
+				Grid.this.installBorder();
+			} else if (_border.getHeight() != _po.getRootHeight()) {
+				Grid.this.reset();
+				_pane.getChildren().remove(_border);
+				Grid.this.installBorder();
+			}
 			if (!_triggered && _currMode == GridEnums.GO && _border != null) {
 				_triggered = true;
 				Grid.this.generateGrid(_border);
+				_reset = false;
 			}
 			e.consume();
 		}
@@ -244,8 +232,39 @@ public class Grid {
 
 		@Override
 		public void handle(MouseEvent e) {
-			// handle the mouse functionality that fills and unfills regions
-			
+			if (MouseEvent.MOUSE_PRESSED == e.getEventType()) {
+				_selectedRegion = Grid.this.getSelectedRegion(e);
+				if (_selectedRegion != null) {
+					if (_selectedRegion.getFill() == _currColor) {
+						_selectedRegion.setFill(Color.TRANSPARENT);
+					} else {
+						_selectedRegion.setFill(_currColor);
+					}
+				}
+			}
+
+			e.consume();
 		}
+	}
+
+	private Rectangle getSelectedRegion(MouseEvent e) {
+		for (int i = _regions.size() - 1; i > 0; i--) {
+			if (_regions.get(i).contains(e.getX(), e.getY())) {
+				return _regions.get(i);
+			}
+		}
+		return null;
+	}
+
+	public void setColor(Color color) {
+		_currColor = color;
+	}
+
+	public HelpBox getHB() {
+		return _hb;
+	}
+
+	public boolean isClear() {
+		return _reset;
 	}
 }
