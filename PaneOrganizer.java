@@ -1,66 +1,89 @@
 package grid;
 
+
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import javafx.scene.effect.ColorAdjust;
-/*
- * This is my PaneOrganizer class. It factors out the graphical layout from the App class and deals
- * with organizing all the graphical elements within the root (border pane).
- */
+
 public class PaneOrganizer {
 
 	private BorderPane _root;
 	private Image _source;
+	private ImageView _iv;
+	private Pane _canvasPane;
+	private Stage _stage;
+	private double _rootHeight;
 
-	/*
-	 * My PaneOrganizer constructor takes in a stage in its constructor to pass on
-	 * to an instance of Control which uses it in the save and load handling. In my
-	 * constructor I instantiate control and sketchy and make the proper
-	 * associations between them.
-	 */
 	public PaneOrganizer(Stage stage) {
+		_stage = stage;
 		_root = new BorderPane();
 		_root.setPrefSize(Constants.ROOT_WIDTH, Constants.ROOT_HEIGHT);
+		_rootHeight = Constants.ROOT_HEIGHT;
 		_root.setStyle("-fx-background-color: white;");
-		Pane canvasPane = new Pane();
-		this.installImage(canvasPane);
-		canvasPane.setFocusTraversable(true);
-		Grid grid = new Grid(canvasPane);
-		new Control(canvasPane, grid, this);
+		_canvasPane = new Pane();
+		_canvasPane.setPrefSize(Constants.ROOT_WIDTH, Constants.ROOT_HEIGHT);
+		this.setSource(null);
+		_canvasPane.setFocusTraversable(true);
+		Grid grid = new Grid(_canvasPane, this);
+		new Control(_canvasPane, grid, this, stage);
 	}
 
-	// returns the BorderPane instance
 	public BorderPane getRoot() {
 		return _root;
 	}
-	
-	//returns color image
+
+	// returns color image
 	public Image getSource() {
 		return _source;
 	}
-	
-	
-	//installs grayscale background image of MK and A Olsen
-	private void installImage(Pane canvasPane) {
-		ColorAdjust colorAdjust = new ColorAdjust();
-		colorAdjust.setSaturation(-1);
-		colorAdjust.setContrast(0.05);
-		colorAdjust.setHue(-0.05);
-		colorAdjust.setBrightness(-0.1);
-		_source = new Image("https://ewedit.files.wordpress.com/2015/04/billboard-dad.jpg", Constants.ROOT_WIDTH, Constants.ROOT_HEIGHT, true, true);
-		canvasPane.setPrefSize(Constants.ROOT_WIDTH, Constants.ROOT_HEIGHT);
-		WritableImage image = new WritableImage(_source.getPixelReader(), (int)_source.getWidth(), (int)_source.getHeight());
-		ImageView iv = new ImageView();
-		iv.setImage(image);
-		iv.setFitWidth(Constants.ROOT_WIDTH);
-		iv.setPreserveRatio(true);
-		iv.setEffect(colorAdjust);
-		_root.setCenter(canvasPane);
-		canvasPane.getChildren().add(iv);
+
+	public ImageView getImageView() {
+		return _iv;
+	}
+
+	// updates the source image displayed
+	public void setSource(Image image) {
+		if (_iv == null) {
+			_iv = new ImageView();
+			_iv.fitWidthProperty().bind(_stage.widthProperty());
+			_iv.fitHeightProperty().bind(_stage.heightProperty());
+			_root.setCenter(_canvasPane);
+			_canvasPane.getChildren().add(_iv);
+		}
+		if (image == null) {
+			return;
+		}
+		WritableImage img = new WritableImage(image.getPixelReader(), (int) image.getWidth(), (int) image.getHeight());
+		_iv.setImage(img);
+		_iv.setPreserveRatio(true);
+		_source = img;
+		
+
+/*
+commented out code represents unfinished attempts at image resizing
+*/
+		//if portrait style
+//		double htwRatio = img.getHeight()/img.getWidth();
+//		//if portrait
+//		if (htwRatio > 1) {
+//			
+//		}
+//		if (_source.getHeight() > _source.getWidth()) {
+//			//remove the empty space
+//		}
+//		if (_source.getHeight() < Constants.ROOT_HEIGHT) {
+//			System.out.println("image too short");
+//			_stage.setWidth(Constants.ROOT_WIDTH);
+//			_stage.setHeight(_source.getHeight());
+//			_rootHeight = _source.getHeight();
+//		}
+	}
+
+	public double getRootHeight() {
+		return _rootHeight;
 	}
 
 }
