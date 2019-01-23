@@ -1,2 +1,4 @@
 # MondrianGrid
-Ongoing art project inspired by Piet Mondrian and Mary Kate and Ashley Olsen
+Create artwork in the distinct style of Mondrian. 
+
+I imagine this project residing along the boundary of computer and user generated artwork.
