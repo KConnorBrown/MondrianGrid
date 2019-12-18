@@ -1,5 +1,9 @@
 var rootWidth, rootHeight;
 
+// let roboto;
+// function preload() {
+//   roboto = loadFont('assets/Roboto-Regular.ttf');
+// }
 
 function setup() {
   var c = createCanvas(windowWidth, windowHeight);
@@ -13,6 +17,7 @@ function Rectangle(_x, _y, width, height) {
     this.y = _y;
     this.width = width;
     this.height = height;
+    this.area = this.width*this.height;
     this.color = color(255,255,255,255);
     this.min_x = this.x;
     this.max_x = this.x+this.width;
@@ -85,7 +90,7 @@ function divide(horizontal, vertical, r) {
 }
 
 var rects = [];
-var z = .25 + Math.random();
+var z = .35 + Math.random();
 var q = 15 + Math.random()*140;
 function generateGrid(r) {
     var newRegions;
@@ -120,14 +125,31 @@ function mousePressed(){
         if (drawn_rects[i].min_x < x && drawn_rects[i].max_x > x
         && drawn_rects[i].min_y < y && drawn_rects[i].max_y > y){
             if (currColor != null) {
-                drawn_rects[i].color = currColor;
+                if (currColor == drawn_rects[i].color) {
+                    drawn_rects[i].color = color(255,255,255,255);
+                } else {
+                    drawn_rects[i].color = currColor;
+                }
             }
         }
     }
 }
 
+var helpTxt = 'Toggle r for red, b for blue, y for yellow. Shift-r will reset the grid. Shift-s saves your creation as a png.';
+function displayHelp() {
+    push();
+    fill(color('#DAF8DD'));
+    rect(30, 20, 200, 120, 20);
+    fill(50);
+    textSize(16);
+    //textFont(roboto);
+    text(helpTxt, 40, 43, 190);
+    pop();
+}
+
 
 var reset = true;
+var help = true;
 var drawn_rects = [];
 function draw() {
     if (reset) {
@@ -148,20 +170,30 @@ function draw() {
             drawn_rects[i].draw();
         }
     }
+    if (help) {
+        this.displayHelp();
+    }
 }
 
 var currColor = null;
 function keyPressed(){
     //toggle blue
-    if (keyCode == 66){
+    if (key  == 'b'){
         currColor = color('#0000b2');
     //toggle yellow
-    } else if (keyCode == 89) {
+    } else if (key == 'y') {
         currColor = color('#FFFF32');
     //toggle red
-    } else if (keyCode == 82) {
+    } else if (key == 'r') {
         currColor = color('#FF1919');
-    } else if (keyCode == 83) {
+    } else if (key == 'S') {
         saveCanvas();
+    } else if (key == 'R') {
+        reset = true;
+        drawn_rects = [];
+        rects = [];
+        currColor = null;
+        z = .25 + Math.random();
+        q = 15 + Math.random()*140;
     }
 }
