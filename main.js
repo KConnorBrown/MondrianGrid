@@ -28,8 +28,8 @@ function Rectangle(_x, _y, width, height) {
 Rectangle.prototype.draw = function() {
     push();
     fill(this.color);
-    strokeWeight(2);
-    stroke(51);
+    strokeWeight(3);
+    stroke(0);
     rect(this.x, this.y, this.width, this.height);
     pop();
 }
@@ -149,7 +149,7 @@ function displayHelp() {
 
 
 var reset = true;
-var help = true;
+var help = false;
 var drawn_rects = [];
 function draw() {
     if (reset) {
