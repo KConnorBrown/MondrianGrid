@@ -1,9 +1,6 @@
 # Compiled class file
 *.class
 
-# ignore java files bc they're deprecated
-.java
-
 # Log file
 *.log
 
