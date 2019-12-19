@@ -6,9 +6,15 @@ var rootWidth, rootHeight;
 // }
 
 function setup() {
-  var c = createCanvas(windowWidth, windowHeight);
+  var cnv = createCanvas(windowWidth, windowHeight);
+  // cnv.style('display', 'block');
   rootWidth = windowWidth;
   rootHeight = windowHeight;
+  hbox = new HelpBox(6/7*rootWidth, 6/7*rootHeight);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
 
 function Rectangle(_x, _y, width, height) {
@@ -31,6 +37,24 @@ Rectangle.prototype.draw = function() {
     strokeWeight(3);
     stroke(0);
     rect(this.x, this.y, this.width, this.height);
+    pop();
+}
+
+function HelpBox(width, height) {
+    this.helping = false;
+    this.width = width;
+    this.height = height;
+    this.x = rootWidth/2-this.width/2;
+    this.y = rootHeight/2 - this.height/2;
+}
+
+HelpBox.prototype.draw = function() {
+    push();
+    fill(color(230, 241, 245, 240));
+    strokeWeight(5);
+    stroke(color(230, 241, 245, 255));
+    rect(this.x, this.y, this.width, this.height);
+
     pop();
 }
 
@@ -135,21 +159,8 @@ function mousePressed(){
     }
 }
 
-var helpTxt = 'Toggle r for red, b for blue, y for yellow. Shift-r will reset the grid. Shift-s saves your creation as a png.';
-function displayHelp() {
-    push();
-    fill(color('#DAF8DD'));
-    rect(30, 20, 200, 120, 20);
-    fill(50);
-    textSize(16);
-    //textFont(roboto);
-    text(helpTxt, 40, 43, 190);
-    pop();
-}
-
 
 var reset = true;
-var help = false;
 var drawn_rects = [];
 function draw() {
     if (reset) {
@@ -170,8 +181,8 @@ function draw() {
             drawn_rects[i].draw();
         }
     }
-    if (help) {
-        this.displayHelp();
+    if (hbox.helping) {
+        hbox.draw();
     }
 }
 
@@ -195,5 +206,11 @@ function keyPressed(){
         currColor = null;
         z = .25 + Math.random();
         q = 15 + Math.random()*140;
+    } else if (key == 'h') {
+        if (hbox.helping) {
+            hbox.helping = false;
+        } else {
+            hbox.helping = true;
+        }
     }
 }
