@@ -38,12 +38,10 @@ function HelpBox() {
     this.x = windowWidth/2-this.width/2;
     this.y = windowHeight/2 - this.height/2;
     this.title = createElement('h2', '<h2>Welcome to MondrianGrid!</h2>');
-    this.helpTxt = createElement('ul', '<li>type r, b, and y to toggle the fill color</li><li>use shift+r to reset the canvas/grid</li><li>use shift+s to save a .png image of your work to share!</li><li>type h to open and close this help box</li>');
+    this.helpTxt = createElement('ul', '<li>type r, b, and y to toggle the fill color (try clicking in boxes!)</li><li>use shift+r to reset the canvas/grid</li><li>use shift+s to save a .png image of your work to share!</li><li>type h to open and close this help box</li>');
     this.title.style('font-size', '50px');
-    this.title.style('color', 'rgb(0,0,0)');
     this.title.style('font-family', "'Roboto', sans-serif");
     this.helpTxt.style('font-size', '36px');
-    this.helpTxt.style('color', 'rgb(0,0,0)');
     this.helpTxt.style('font-family', "'Roboto', sans-serif");
     this.title.style('position', 'absolute');
     this.title.style('left', str(1/7*this.width)+'px');
@@ -51,8 +49,6 @@ function HelpBox() {
     this.helpTxt.style('top', str(1/3*this.height)+'px');
     this.helpTxt.style('position', 'absolute');
     this.helpTxt.style('line-height', '75px');
-
-
 }
 
 HelpBox.prototype.draw = function() {
