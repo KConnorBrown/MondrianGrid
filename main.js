@@ -1,16 +1,7 @@
-var rootWidth, rootHeight;
-
-// let roboto;
-// function preload() {
-//   roboto = loadFont('assets/Roboto-Regular.ttf');
-// }
-
 function setup() {
   var cnv = createCanvas(windowWidth, windowHeight);
-  // cnv.style('display', 'block');
-  rootWidth = windowWidth;
-  rootHeight = windowHeight;
-  hbox = new HelpBox(6/7*rootWidth, 6/7*rootHeight);
+  cnv.style('position', 'absolute');
+  hbox = new HelpBox();
 }
 
 function windowResized() {
@@ -40,21 +31,36 @@ Rectangle.prototype.draw = function() {
     pop();
 }
 
-function HelpBox(width, height) {
-    this.helping = false;
-    this.width = width;
-    this.height = height;
-    this.x = rootWidth/2-this.width/2;
-    this.y = rootHeight/2 - this.height/2;
+function HelpBox() {
+    this.helping = true;
+    this.width = 6/7*windowWidth;
+    this.height = 6/7*windowHeight;
+    this.x = windowWidth/2-this.width/2;
+    this.y = windowHeight/2 - this.height/2;
+    this.title = createElement('h2', '<h2>Welcome to MondrianGrid!</h2>');
+    this.helpTxt = createElement('ul', '<li>type r, b, and y to toggle the fill color</li><li>use shift+r to reset the canvas/grid</li><li>use shift+s to save a .png image of your work to share!</li><li>type h to open and close this help box</li>');
+    this.title.style('font-size', '50px');
+    this.title.style('color', 'rgb(0,0,0)');
+    this.title.style('font-family', "'Roboto', sans-serif");
+    this.helpTxt.style('font-size', '36px');
+    this.helpTxt.style('color', 'rgb(0,0,0)');
+    this.helpTxt.style('font-family', "'Roboto', sans-serif");
+    this.title.style('position', 'absolute');
+    this.title.style('left', str(1/7*this.width)+'px');
+    this.helpTxt.style('left', str(1/7*this.width)+'px');
+    this.helpTxt.style('top', str(1/3*this.height)+'px');
+    this.helpTxt.style('position', 'absolute');
+    this.helpTxt.style('line-height', '75px');
+
+
 }
 
 HelpBox.prototype.draw = function() {
     push();
     fill(color(230, 241, 245, 240));
     strokeWeight(5);
-    stroke(color(230, 241, 245, 255));
+    stroke(color(230, 0, 0, 240));
     rect(this.x, this.y, this.width, this.height);
-
     pop();
 }
 
@@ -71,7 +77,6 @@ I define splitting horizontally as choosing a point along the y axis to
 horizontally cut a rectangle in half. This preserves width, but makes each
 resulting rectangle shorter
 */
-
 function divide(horizontal, vertical, r) {
     newRegions = [];
     var x = locateSplit(r.x, r.x+r.width);
@@ -123,8 +128,8 @@ function generateGrid(r) {
     var vRand = q+ Math.random() * Math.abs(r.width*1.5 - q);
     var hRand = q+ Math.random() * Math.abs(r.height*1.5 - q);
     //if region is wide and tall enough for both splits
-    vertical = r.width > z*rootWidth/2;
-    horizontal = r.height > z*rootHeight/2;
+    vertical = r.width > z*windowWidth/2;
+    horizontal = r.height > z*windowHeight/2;
     if (!vertical) {
         vertical = r.width > vRand;
     }
@@ -165,7 +170,7 @@ var drawn_rects = [];
 function draw() {
     if (reset) {
         reset = false;
-        firstRect = new Rectangle(0,0, rootWidth, rootHeight);
+        firstRect = new Rectangle(0,0, windowWidth, windowHeight);
         rects.push(firstRect);
         this.generateGrid(firstRect);
         //initialze first Rectangle
@@ -188,16 +193,19 @@ function draw() {
 
 var currColor = null;
 function keyPressed(){
-    //toggle blue
     if (key  == 'b'){
         currColor = color('#0000b2');
-    //toggle yellow
     } else if (key == 'y') {
         currColor = color('#FFFF32');
-    //toggle red
     } else if (key == 'r') {
         currColor = color('#FF1919');
     } else if (key == 'S') {
+        if (hbox.helping) {
+            hbox.helping = false;
+            hbox.title.style('visibility', 'hidden');
+            hbox.helpTxt.style('visibility', 'hidden');
+        }
+        redraw();
         saveCanvas();
     } else if (key == 'R') {
         reset = true;
@@ -209,8 +217,12 @@ function keyPressed(){
     } else if (key == 'h') {
         if (hbox.helping) {
             hbox.helping = false;
+            hbox.title.style('visibility', 'hidden');
+            hbox.helpTxt.style('visibility', 'hidden');
         } else {
             hbox.helping = true;
+            hbox.title.style('visibility', 'visible');
+            hbox.helpTxt.style('visibility', 'visible');
         }
     }
 }
