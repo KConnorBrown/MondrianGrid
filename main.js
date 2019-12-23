@@ -49,6 +49,7 @@ function HelpBox() {
     this.helpTxt.style('top', str(1/3*this.height)+'px');
     this.helpTxt.style('position', 'absolute');
     this.helpTxt.style('line-height', '75px');
+    this.helpTxt.style('list-style-type', 'square');
 }
 
 HelpBox.prototype.draw = function() {
