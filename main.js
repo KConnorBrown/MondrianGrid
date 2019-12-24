@@ -142,25 +142,6 @@ function generateGrid(r) {
     return newRegions;
 }
 
-function mousePressed(){
-    var x = mouseX;
-    var y = mouseY;
-    var i;
-    //find rectangle that contains the point
-    for (i=0; i < drawn_rects.length; i ++){
-        if (drawn_rects[i].min_x < x && drawn_rects[i].max_x > x
-        && drawn_rects[i].min_y < y && drawn_rects[i].max_y > y){
-            if (currColor != null) {
-                if (currColor == drawn_rects[i].color) {
-                    drawn_rects[i].color = color(255,255,255,255);
-                } else {
-                    drawn_rects[i].color = currColor;
-                }
-            }
-        }
-    }
-}
-
 
 var reset = true;
 var drawn_rects = [];
@@ -220,6 +201,33 @@ function keyPressed(){
             hbox.helping = true;
             hbox.title.style('visibility', 'visible');
             hbox.helpTxt.style('visibility', 'visible');
+        }
+    }
+}
+
+/* necessary to check equality of color after toggling
+bc == doesn't register until mousePressed twice. */
+function colorMatch(c1, c2){
+    return (c1._getRed()==c2._getRed()) && (c1._getBlue()==c2._getBlue())
+    && (c1._getGreen()==c2._getGreen()) && (c1._getAlpha()==c2._getAlpha());
+}
+
+
+function mousePressed(){
+    var x = mouseX;
+    var y = mouseY;
+    var i;
+    //find rectangle that contains the point
+    for (i=0; i < drawn_rects.length; i ++){
+        if (drawn_rects[i].min_x < x && drawn_rects[i].max_x > x
+        && drawn_rects[i].min_y < y && drawn_rects[i].max_y > y){
+            if (currColor != null) {
+                if (colorMatch(currColor, drawn_rects[i].color)) {
+                    drawn_rects[i].color = color(255,255,255,255);
+                } else {
+                    drawn_rects[i].color = currColor;
+                }
+            }
         }
     }
 }
